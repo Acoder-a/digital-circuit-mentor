@@ -1,0 +1,32 @@
+# 依赖
+node_modules/
+*/node_modules/
+**/node_modules/
+
+# 环境变量与密钥（切勿提交）
+.env
+.env.local
+*.env
+
+# 依赖锁文件可按需保留，此处忽略以避免平台差异冲突
+# package-lock.json
+
+# 临时 / 缓存
+*.tmp
+~$*
+~WRL*
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# 日志
+*.log
+server-*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db

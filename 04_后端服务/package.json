@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@langchain/core": "^1.1.47",
+    "@langchain/openai": "^1.4.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "ws": "^8.20.1"
+  }
+}

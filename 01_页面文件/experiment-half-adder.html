@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实验二 - 半加器仿真</title>
+    <link rel="stylesheet" href="styles/experiment-half-adder.css">
+    <link rel="stylesheet" href="styles/emotion-panel.css">
+    <link rel="stylesheet" href="styles/live2d-host.css">
+</head>
+<body>
+    <div class="experiment-page" id="page">
+        <header class="topbar">
+            <div>
+                <div class="top-tag">实验二 / 半加器</div>
+                <h1>半加器交互仿真</h1>
+                <p>在这个实验里，你将看到两个输入位如何通过异或门和与门，同时产生和位 S 与进位 C。</p>
+            </div>
+            <a class="back-btn" href="index.html">返回实验选择</a>
+        </header>
+
+        <main class="layout">
+            <section class="panel control-panel">
+                <div class="panel-inner">
+                    <h2>交互控制区</h2>
+                    <p class="panel-desc">先切换输入 A 和输入 B，再看半加器的两个输出是怎样一起变化的。</p>
+
+                    <div class="switch-grid">
+                        <button class="switch-card off" id="btnA">
+                            <span>输入 A</span>
+                            <strong id="valueA">0</strong>
+                            <em>点击切换 0 / 1</em>
+                        </button>
+                        <button class="switch-card off" id="btnB">
+                            <span>输入 B</span>
+                            <strong id="valueB">0</strong>
+                            <em>点击切换 0 / 1</em>
+                        </button>
+                    </div>
+
+                    <div class="step-card">
+                        <span>当前步骤提示</span>
+                        <strong id="stepHint">先点击输入 A 或输入 B。你会同时看到和位 S 与进位 C 的变化。</strong>
+                    </div>
+
+                    <div class="formula-card">
+                        <span>半加器核心关系</span>
+                        <strong>S = A XOR B</strong>
+                        <strong>C = A AND B</strong>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="action-btn" id="replayBtn">重播当前讲解</button>
+                        <button class="action-btn secondary" id="introBtn">播放实验介绍</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel simulator-panel">
+                <div class="panel-inner">
+                    <div class="board-head">
+                        <div>
+                            <h2>半加器实时仿真区</h2>
+                            <p>上方异或门负责输出和位 S，下方与门负责输出进位 C，输入变化会带动两条通路一起联动。</p>
+                        </div>
+                        <div class="output-summary">
+                            <div class="summary-card">
+                                <span>和位 S</span>
+                                <strong id="sumValue">0</strong>
+                            </div>
+                            <div class="summary-card">
+                                <span>进位 C</span>
+                                <strong id="carryValue">0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="circuit-board">
+                        <div class="inputs">
+                            <div class="signal-row">
+                                <span class="signal-name">A</span>
+                                <div class="wire"><i id="wireA"></i></div>
+                                <span class="signal-value" id="wireValueA">0</span>
+                            </div>
+                            <div class="signal-row">
+                                <span class="signal-name">B</span>
+                                <div class="wire"><i id="wireB"></i></div>
+                                <span class="signal-value" id="wireValueB">0</span>
+                            </div>
+                        </div>
+
+                        <div class="gate-stack">
+                            <div class="gate-visual xor-gate">XOR</div>
+                            <div class="gate-visual and-gate">AND</div>
+                        </div>
+
+                        <div class="outputs">
+                            <div class="output-row">
+                                <span class="signal-name">S</span>
+                                <div class="wire output-wire"><i id="wireSum"></i></div>
+                                <div class="led sum-led" id="ledSum"></div>
+                            </div>
+                            <div class="output-row">
+                                <span class="signal-name">C</span>
+                                <div class="wire output-wire"><i id="wireCarry"></i></div>
+                                <div class="led carry-led" id="ledCarry"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="truth-table-wrap">
+                        <h3>半加器真值表</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>输入 A</th>
+                                    <th>输入 B</th>
+                                    <th>和位 S</th>
+                                    <th>进位 C</th>
+                                </tr>
+                            </thead>
+                            <tbody id="truthTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="panel mentor-panel">
+                <div class="panel-inner">
+                    <div class="mentor-stage" id="mentorStage">
+                        <div class="mentor-bubble">
+                            <h2>实验助手“小芯”</h2>
+                            <p id="bubbleText">欢迎来到实验二。半加器会同时产生和位 S 与进位 C，我会在你每一次点击之后解释这两个输出。</p>
+                        </div>
+
+                        <div class="mentor-rings" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class="live2d-stage-shell" id="avatar">
+                            <div class="live2d-host" data-live2d-host></div>
+                        </div>
+
+                        <div class="mentor-readouts">
+                            <div class="readout-card">
+                                <span>讲解状态</span>
+                                <strong id="voiceState">待命</strong>
+                            </div>
+                            <div class="readout-card">
+                                <span>当前焦点</span>
+                                <strong id="focusState">实验二</strong>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="emotion-panel" id="emotionPanel" data-emotion="neutral">
+                            <div class="emotion-panel-head">
+                                <div>
+                                    <span>多模态情绪融合</span>
+                                    <strong id="emotionLabel">中性</strong>
+                                </div>
+                                <em id="emotionConfidence">35%</em>
+                            </div>
+                            <div class="emotion-source-grid">
+                                <div class="emotion-source">
+                                    <span>文本</span>
+                                    <strong id="emotionSourceText">未输入</strong>
+                                </div>
+                                <div class="emotion-source">
+                                    <span>语音</span>
+                                    <strong id="emotionSourceVoice">未启用</strong>
+                                </div>
+                                <div class="emotion-source">
+                                    <span>行为</span>
+                                    <strong id="emotionSourceBehavior">正常</strong>
+                                </div>
+                            </div>
+                            <div class="emotion-decision">
+                                <span id="emotionStrategy">教学策略：正常讲解</span>
+                                <strong id="emotionOutput">输出方式：默认表情 / 正常语速 / 按流程讲解</strong>
+                            </div>
+                        </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="scripts/live2d-host.js"></script>
+    <script src="scripts/emotion-utils.js"></script>
+    <script src="scripts/experiment-half-adder.js"></script>
+    <script src="scripts/experiment-voice-assistant.js"></script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+.live2d-stage-shell {
+    position: absolute;
+    left: 50%;
+    top: 56%;
+    width: 340px;
+    height: 500px;
+    transform: translate(-50%, -50%) rotateX(var(--avatar-tilt-x)) rotateY(var(--avatar-tilt-y));
+    transform-style: preserve-3d;
+    animation: avatar-float 5.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 38px rgba(95, 240, 255, 0.26));
+    z-index: 2;
+    pointer-events: none;
+}
+
+.mentor-stage .live2d-stage-shell {
+    width: 320px;
+    height: 460px;
+}
+
+.live2d-host {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.live2d-fallback {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(240px, 80%);
+    padding: 14px 16px;
+    transform: translate(-50%, -50%);
+    border-radius: 18px;
+    border: 1px solid rgba(95, 240, 255, 0.24);
+    background: rgba(6, 18, 34, 0.88);
+    color: #dff6ff;
+    font-size: 14px;
+    line-height: 1.7;
+    text-align: center;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.live2d-switch-btn {
+    text-align: left;
+}
+
+.live2d-switch-btn strong {
+    display: block;
+}
+
+.live2d-switch-btn span {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #d7eefc;
+}
+
+.live2d-switch-btn:disabled {
+    opacity: 0.62;
+    cursor: wait;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.live2d-host::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 22px;
+    width: 180px;
+    height: 280px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(95, 240, 255, 0), rgba(95, 240, 255, 0.16), rgba(95, 240, 255, 0));
+    filter: blur(8px);
+    opacity: 0.8;
+}
+
+.live2d-host::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    width: 180px;
+    height: 44px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border: 1px solid rgba(120, 255, 200, 0.3);
+    box-shadow: 0 0 30px rgba(120, 255, 200, 0.12);
+    animation: hover-pulse 3.4s ease-in-out infinite;
+}
+
+.live2d-host #waifu {
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: 0 !important;
+    top: auto !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    transform: translateX(-50%) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+}
+
+.live2d-host #waifu #live2d {
+    position: absolute !important;
+    inset: auto 0 0 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.live2d-host #waifu-tool,
+.live2d-host #waifu-toggle,
+.live2d-host #waifu-tips {
+    display: none !important;
+}
+
+.mentor-readouts {
+    display: none !important;
+}

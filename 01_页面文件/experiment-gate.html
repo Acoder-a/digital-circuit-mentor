@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实验一 - 基础逻辑门仿真</title>
+    <link rel="stylesheet" href="styles/experiment-gate.css">
+    <link rel="stylesheet" href="styles/emotion-panel.css">
+    <link rel="stylesheet" href="styles/live2d-host.css">
+</head>
+<body>
+    <div class="experiment-page" id="page">
+        <header class="topbar">
+            <div>
+                <div class="top-tag">实验一 / 基础逻辑门</div>
+                <h1>基础逻辑门交互仿真</h1>
+                <p>现在你可以直接动手切换输入开关和逻辑门类型，观察与门、或门、非门、异或门的变化规律，数字人会跟着你的每一步操作同步讲解。</p>
+            </div>
+            <a class="back-btn" href="index.html">返回实验选择</a>
+        </header>
+
+        <main class="layout">
+            <section class="panel control-panel">
+                <div class="panel-inner">
+                    <h2>交互控制区</h2>
+                    <p class="panel-desc">先切换输入，再观察输出变化。你也可以切换与门、或门、非门、异或门，对比它们的真值规律。</p>
+
+                    <div class="switch-grid">
+                        <button class="switch-card off" id="btnA" data-input="A">
+                            <span>输入 A</span>
+                            <strong id="valueA">0</strong>
+                            <em>点击切换 0 / 1</em>
+                        </button>
+                        <button class="switch-card off" id="btnB" data-input="B">
+                            <span>输入 B</span>
+                            <strong id="valueB">0</strong>
+                            <em>点击切换 0 / 1</em>
+                        </button>
+                    </div>
+
+                    <div class="gate-section">
+                        <div class="section-head">
+                            <h3>逻辑门选择</h3>
+                            <span id="gateLabel">当前逻辑门：与门</span>
+                        </div>
+                        <div class="gate-buttons">
+                            <button class="gate-btn active" data-gate="AND">与门</button>
+                            <button class="gate-btn" data-gate="OR">或门</button>
+                            <button class="gate-btn" data-gate="NOT">非门</button>
+                            <button class="gate-btn" data-gate="XOR">异或门</button>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <span>当前步骤提示</span>
+                        <strong id="stepHint">先尝试点击输入 A 或输入 B，看看输出会不会立刻变化。</strong>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="action-btn" id="replayBtn">重播当前讲解</button>
+                        <button class="action-btn secondary" id="introBtn">播放实验介绍</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel simulator-panel">
+                <div class="panel-inner">
+                    <div class="board-head">
+                        <div>
+                            <h2>电路实时仿真区</h2>
+                            <p>输入状态、逻辑门符号、输出灯和真值表会同时联动。</p>
+                        </div>
+                        <div class="output-badge">
+                            输出 Y：
+                            <strong id="outputValue">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="circuit-board">
+                        <div class="inputs">
+                            <div class="signal-row">
+                                <span class="signal-name">A</span>
+                                <div class="wire"><i id="wireA"></i></div>
+                                <span class="signal-value" id="wireValueA">0</span>
+                            </div>
+                            <div class="signal-row">
+                                <span class="signal-name">B</span>
+                                <div class="wire"><i id="wireB"></i></div>
+                                <span class="signal-value" id="wireValueB">0</span>
+                            </div>
+                        </div>
+
+                        <div class="gate-visual" id="gateVisual">AND</div>
+
+                        <div class="output-zone">
+                            <div class="wire output-wire"><i id="wireOut"></i></div>
+                            <div class="led" id="ledOutput"></div>
+                        </div>
+                    </div>
+
+                    <div class="truth-table-wrap">
+                        <h3>真值表联动</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>输入 A</th>
+                                    <th id="truthTableHeadB">输入 B</th>
+                                    <th>输出 Y</th>
+                                </tr>
+                            </thead>
+                            <tbody id="truthTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="panel mentor-panel">
+                <div class="panel-inner">
+                    <div class="mentor-stage" id="mentorStage">
+                        <div class="mentor-bubble">
+                            <h2>实验助手“小芯”</h2>
+                            <p id="bubbleText">欢迎来到实验一。我会在你每次切换输入或逻辑门时，立刻告诉你发生了什么。</p>
+                        </div>
+
+                        <div class="mentor-rings" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class="live2d-stage-shell" id="avatar">
+                            <div class="live2d-host" data-live2d-host></div>
+                        </div>
+
+                        <div class="mentor-readouts">
+                            <div class="readout-card">
+                                <span>讲解状态</span>
+                                <strong id="voiceState">待命</strong>
+                            </div>
+                            <div class="readout-card">
+                                <span>当前焦点</span>
+                                <strong id="focusState">实验一</strong>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="emotion-panel" id="emotionPanel" data-emotion="neutral">
+                            <div class="emotion-panel-head">
+                                <div>
+                                    <span>多模态情绪融合</span>
+                                    <strong id="emotionLabel">中性</strong>
+                                </div>
+                                <em id="emotionConfidence">35%</em>
+                            </div>
+                            <div class="emotion-source-grid">
+                                <div class="emotion-source">
+                                    <span>文本</span>
+                                    <strong id="emotionSourceText">未输入</strong>
+                                </div>
+                                <div class="emotion-source">
+                                    <span>语音</span>
+                                    <strong id="emotionSourceVoice">未启用</strong>
+                                </div>
+                                <div class="emotion-source">
+                                    <span>行为</span>
+                                    <strong id="emotionSourceBehavior">正常</strong>
+                                </div>
+                            </div>
+                            <div class="emotion-decision">
+                                <span id="emotionStrategy">教学策略：正常讲解</span>
+                                <strong id="emotionOutput">输出方式：默认表情 / 正常语速 / 按流程讲解</strong>
+                            </div>
+                        </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="scripts/live2d-host.js"></script>
+    <script src="scripts/emotion-utils.js"></script>
+    <script src="scripts/experiment-gate.js"></script>
+    <script src="scripts/experiment-voice-assistant.js"></script>
+</body>
+</html>

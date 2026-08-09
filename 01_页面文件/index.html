@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字电路交互仿真平台</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/emotion-panel.css">
+    <link rel="stylesheet" href="styles/live2d-host.css">
+</head>
+<body>
+    <div class="page mode-standby" id="page">
+        <header class="topbar">
+            <div class="brand">
+                <img class="brand-mark brand-logo" src="logo.png" alt="平台标识">
+                <div>
+                    <h1>数字电路交互仿真平台</h1>
+                </div>
+            </div>
+            <div class="task-tag">阶段一 / 实验选择</div>
+        </header>
+
+        <main class="layout">
+            <aside class="panel left-panel">
+                <div class="panel-inner">
+                    <section class="info-card">
+                        <h2 class="section-title">平台介绍</h2>
+                        <p>平台面向大一新生常见的数电实验上手慢、连线易错、概念难理解等痛点，融合数字人讲解、语音问答与分步引导，帮助学生更快看懂实验、敢于动手、及时纠错。</p>
+                    </section>
+
+                    <section class="info-card">
+                        <h2 class="section-title">实验列表</h2>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <strong>基础逻辑门实验</strong>
+                                <span>认识与门、或门、异或门的输入输出规律。</span>
+                            </div>
+                            <div class="feature-item">
+                                <strong>半加器实验</strong>
+                                <span>观察和位与进位的形成方式，理解二进制加法。</span>
+                            </div>
+                            <div class="feature-item">
+                                <strong>三八译码器实验</strong>
+                                <span>理解输入编码到输出选通之间的关系。</span>
+                            </div>
+                            <div class="feature-item">
+                                <strong>D 触发器实验</strong>
+                                <span>体验时钟到来时数据锁存的过程。</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="signal-cabin-card">
+                        <div class="signal-cabin-head">
+                            <div>
+                                <h2 class="section-title">信号脉冲舱</h2>
+                                <strong>这里会跟着实验节奏一起变化</strong>
+                            </div>
+                            <span class="signal-badge" id="signalBadge">待命</span>
+                        </div>
+                        <p class="signal-cabin-desc" id="signalCabinText">小芯会根据你当前选中的实验，实时调整这里的脉冲风格、关键信号和学习焦点。</p>
+
+                        <div class="signal-wave-panel">
+                            <div class="signal-wave-grid" aria-hidden="true"></div>
+                            <div class="signal-wave-track">
+                                <span class="wave-line wave-line-a"></span>
+                                <span class="wave-line wave-line-b"></span>
+                                <span class="wave-line wave-line-c"></span>
+                            </div>
+                            <div class="signal-rain" aria-hidden="true">
+                                <span>1</span>
+                                <span>0</span>
+                                <span>1</span>
+                                <span>1</span>
+                                <span>0</span>
+                                <span>0</span>
+                                <span>1</span>
+                                <span>0</span>
+                            </div>
+                        </div>
+
+                        <div class="signal-metrics">
+                            <div class="signal-metric">
+                                <span>当前数据流</span>
+                                <strong id="signalModeValue">Logic Gate</strong>
+                            </div>
+                            <div class="signal-metric">
+                                <span>脉冲频率</span>
+                                <strong id="signalFreqValue">2.4 kHz</strong>
+                            </div>
+                            <div class="signal-metric">
+                                <span>聚焦关键词</span>
+                                <strong id="signalFocusValue">A / B / Y</strong>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="challenge-card">
+                        <div class="challenge-head">
+                            <div>
+                                <h2 class="section-title">今日小挑战</h2>
+                                <strong id="challengeTitle">基础热身题</strong>
+                            </div>
+                            <span class="challenge-tag" id="challengeTag">实验一</span>
+                        </div>
+                        <p class="challenge-question" id="challengeQuestion">如果 A=1，B=0，那么与门的输出是什么？</p>
+                        <div class="challenge-clues" id="challengeClues">
+                            <span>先看输入组合</span>
+                            <span>只有全为 1 才输出 1</span>
+                        </div>
+                        <div class="challenge-answer" id="challengeAnswer">答案：0。与门只有在所有输入都为 1 时才会输出 1。</div>
+                        <div class="challenge-actions">
+                            <button type="button" id="challengeRevealBtn">显示提示</button>
+                            <button type="button" id="challengeNextBtn">换一题</button>
+                        </div>
+                    </section>
+
+                    <div class="signature"></div>
+                </div>
+            </aside>
+
+            <section class="panel stage-panel">
+                <div class="panel-inner">
+                    <div class="stage-head">
+                        <div>
+                            <div class="section-title">数字人讲解区</div>
+                            <h2>实验助手“小芯”</h2>
+                            <p id="guideIntro">你好，我会带你浏览这四个简单的数字电路仿真实验。点击任意实验卡片，我会立刻用中文讲解它的学习重点。</p>
+                        </div>
+                        <div class="status-pill" id="modeLabel">当前状态：待机讲解</div>
+                    </div>
+
+                    <div class="avatar-stage" id="avatarStage">
+                        <div class="speech-bubble">
+                            <h3 id="bubbleTitle">当前讲解</h3>
+                            <p id="bubbleText">请选择一个实验。我会介绍实验目标、交互方式和适合的学习场景。</p>
+                        </div>
+
+                        <div class="ring ring-a" aria-hidden="true"></div>
+                        <div class="ring ring-b" aria-hidden="true"></div>
+                        <div class="ring ring-c" aria-hidden="true"></div>
+
+                        <div class="particles" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class="live2d-stage-shell" id="avatar">
+                            <div class="live2d-host" data-live2d-host></div>
+                        </div>
+
+                        <div class="floor-data">
+                            <div class="floor-card">
+                                <span>当前实验</span>
+                                <strong id="currentExperiment">未选择</strong>
+                            </div>
+                            <div class="floor-card">
+                                <span>语音状态</span>
+                                <strong id="voiceState">待命</strong>
+                            </div>
+                            <div class="floor-card">
+                                <span>交互状态</span>
+                                <strong id="interactionState">目光跟随已开启</strong>
+                            </div>
+                        </div>
+
+                        <div class="emotion-panel" id="emotionPanel" data-emotion="neutral">
+                            <div class="emotion-panel-head">
+                                <div>
+                                    <span>多模态情绪融合</span>
+                                    <strong id="emotionLabel">中性</strong>
+                                </div>
+                                <em id="emotionConfidence">35%</em>
+                            </div>
+                            <div class="emotion-source-grid">
+                                <div class="emotion-source">
+                                    <span>文本</span>
+                                    <strong id="emotionSourceText">未输入</strong>
+                                </div>
+                                <div class="emotion-source">
+                                    <span>语音</span>
+                                    <strong id="emotionSourceVoice">未启用</strong>
+                                </div>
+                                <div class="emotion-source">
+                                    <span>行为</span>
+                                    <strong id="emotionSourceBehavior">正常</strong>
+                                </div>
+                            </div>
+                            <div class="emotion-decision">
+                                <span id="emotionStrategy">教学策略：正常讲解</span>
+                                <strong id="emotionOutput">输出方式：默认表情 / 正常语速 / 按流程讲解</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <section class="assistant-inline-panel">
+                        <div class="assistant-inline-head">
+                            <div>
+                                <div class="section-title">小芯对话区</div>
+                                <h3>这里就是首页智能问答区</h3>
+                                <p>直接利用中间这块空白区域。你可以文字提问，也可以先开启语音待命，说“小芯小芯”把她唤醒。</p>
+                            </div>
+                            <div class="assistant-inline-status" id="assistantInlineStatus">当前状态：待命</div>
+                        </div>
+
+                        <div class="assistant-inline-box">
+                            <div class="assistant-inline-log" id="assistantLog">
+                                <article class="assistant-inline-message assistant">
+                                    <div class="assistant-inline-role">小芯</div>
+                                    <p>你好，我是实验助手小芯。你可以问我“什么是与门”，也可以说“小芯小芯”把我唤醒。</p>
+                                </article>
+                            </div>
+
+                            <div class="assistant-inline-input">
+                                <div class="assistant-inline-meta">
+                                    <span id="voiceWakeStatus">语音待命：未开启</span>
+                                    <span id="voiceRecognizeHint">麦克风未启动</span>
+                                </div>
+                                <textarea id="assistantInput" rows="2" placeholder="在这里向小芯提问，例如：为什么与门在 A=1、B=0 时输出是 0？"></textarea>
+                                <div class="assistant-inline-suggestions" id="assistantSuggestions"></div>
+                                <div class="assistant-inline-actions">
+                                    <button type="button" id="assistantSendBtn">发送问题</button>
+                                    <button type="button" id="assistantSpeechToTextBtn">语音转文字</button>
+                                    <button type="button" id="assistantVoiceBtn">开启语音待命</button>
+                                    <button type="button" class="secondary" id="assistantVoiceStopBtn">停止语音待命</button>
+                                </div>
+                                <div class="assistant-inline-tips">
+                                    <button type="button" class="tips-chip" data-assistant-question="什么是与门">什么是与门</button>
+                                    <button type="button" class="tips-chip" data-assistant-question="半加器的和位怎么来的">半加器的和位怎么来的</button>
+                                    <button type="button" class="tips-chip" data-assistant-question="译码器为什么只亮一路">译码器为什么只亮一路</button>
+                                    <button type="button" class="tips-chip" data-assistant-question="D触发器为什么要等时钟">D触发器为什么要等时钟</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+
+            <aside class="panel right-panel">
+                <div class="panel-inner">
+                    <section class="control-card">
+                        <h2 class="section-title">实验选择</h2>
+                        <p>先在这里确定实验方向。当前先做选择界面，后面我们再逐个补全具体仿真页。</p>
+                        <div class="experiment-list">
+                            <button class="experiment-card active" data-experiment="gate">
+                                <span class="experiment-tag">实验一</span>
+                                <strong>基础逻辑门</strong>
+                                <em>与门 / 或门 / 非门 / 异或门</em>
+                                <p>适合入门，交互上只需要切换输入开关即可看到输出变化。</p>
+                            </button>
+                            <button class="experiment-card" data-experiment="halfAdder">
+                                <span class="experiment-tag">实验二</span>
+                                <strong>半加器</strong>
+                                <em>和位 S / 进位 C</em>
+                                <p>用两个输入位组成最基础的二进制加法实验。</p>
+                            </button>
+                            <button class="experiment-card" data-experiment="decoder">
+                                <span class="experiment-tag">实验三</span>
+                                <strong>三八译码器</strong>
+                                <em>A2 A1 A0 -> Y0 到 Y7</em>
+                                <p>通过三位输入控制八路输出，结构清晰且很有展示效果。</p>
+                            </button>
+                            <button class="experiment-card" data-experiment="flipFlop">
+                                <span class="experiment-tag">实验四</span>
+                                <strong>D 触发器</strong>
+                                <em>D / CLK / Q</em>
+                                <p>用时钟脉冲触发锁存，适合后续延展到时序电路。</p>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="control-card">
+                        <h2 class="section-title">实验预览</h2>
+                        <div class="preview-card">
+                            <div class="preview-head">
+                                <strong id="previewTitle">基础逻辑门实验</strong>
+                                <span id="previewLevel">难度：入门</span>
+                            </div>
+                            <p id="previewDescription">这个实验最适合作为平台第一个仿真模块，用户只需要拨动输入开关，就能直观看到输出变化和真值规律。</p>
+                            <div class="preview-points" id="previewPoints">
+                                <span>双输入切换</span>
+                                <span>输出灯联动</span>
+                                <span>真值表高亮</span>
+                            </div>
+                        </div>
+                        <div class="action-group">
+                            <button class="action-btn" id="speakBtn">
+                                <strong>播放实验讲解</strong>
+                                <span>让数字人用中文重新介绍当前选中的实验。</span>
+                            </button>
+                            <button class="action-btn" id="pulseBtn">
+                                <strong>展示能量反馈</strong>
+                                <span>检查数字人舞台的动态效果是否足够醒目。</span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="control-card">
+                        <h2 class="section-title">当前读数</h2>
+                        <div class="readout">
+                            <div class="readout-item">
+                                <span>已选实验</span>
+                                <strong id="readoutMode">基础逻辑门</strong>
+                            </div>
+                            <div class="readout-item">
+                                <span>讲解状态</span>
+                                <strong id="readoutSpeech">待命</strong>
+                            </div>
+                            <div class="readout-item">
+                                <span>推荐程度</span>
+                                <strong id="readoutRecommend">优先制作</strong>
+                            </div>
+                            <div class="readout-item">
+                                <span>下一步</span>
+                                <strong id="readoutNext">进入实验页</strong>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="scripts/live2d-host.js"></script>
+    <script src="scripts/emotion-utils.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>

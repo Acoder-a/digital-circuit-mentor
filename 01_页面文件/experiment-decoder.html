@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实验三 - 三八译码器仿真</title>
+    <link rel="stylesheet" href="styles/experiment-decoder.css">
+    <link rel="stylesheet" href="styles/emotion-panel.css">
+    <link rel="stylesheet" href="styles/live2d-host.css">
+</head>
+<body>
+    <div class="experiment-page" id="page">
+        <header class="topbar">
+            <div>
+                <div class="top-tag">实验三 / 三八译码器</div>
+                <h1>三八译码器交互仿真</h1>
+                <p>通过切换三位输入 A2、A1、A0，观察八路输出中哪一路被选中点亮，理解输入编码到输出通道的一一对应关系。</p>
+            </div>
+            <a class="back-btn" href="index.html">返回实验选择</a>
+        </header>
+
+        <main class="layout">
+            <section class="panel control-panel">
+                <div class="panel-inner">
+                    <h2>交互控制区</h2>
+                    <p class="panel-desc">依次切换三位输入，看看当前二进制编码会把哪一路输出 Y 点亮。你也可以对照下方真值表理解译码过程。</p>
+
+                    <div class="switch-grid">
+                        <button class="switch-card off" id="btnA2">
+                            <span>输入 A2</span>
+                            <strong id="valueA2">0</strong>
+                            <em>点击切换 0 / 1</em>
+                        </button>
+                        <button class="switch-card off" id="btnA1">
+                            <span>输入 A1</span>
+                            <strong id="valueA1">0</strong>
+                            <em>点击切换 0 / 1</em>
+                        </button>
+                        <button class="switch-card off" id="btnA0">
+                            <span>输入 A0</span>
+                            <strong id="valueA0">0</strong>
+                            <em>点击切换 0 / 1</em>
+                        </button>
+                    </div>
+
+                    <div class="step-card">
+                        <span>当前步骤提示</span>
+                        <strong id="stepHint">先切换任意一个输入位，观察八路输出中只有一路会被点亮，这就是译码器的唯一选通效果。</strong>
+                    </div>
+
+                    <div class="formula-card">
+                        <span>译码结果</span>
+                        <strong id="binaryCode">当前编码：000</strong>
+                        <strong id="activeChannelText">当前点亮：Y0</strong>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="action-btn" id="replayBtn">重播当前讲解</button>
+                        <button class="action-btn secondary" id="introBtn">播放实验介绍</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel simulator-panel">
+                <div class="panel-inner">
+                    <div class="board-head">
+                        <div>
+                            <h2>译码电路实时仿真区</h2>
+                            <p>左侧三位输入组成一个三位二进制编号，中间经过译码器后，右侧八路输出中仅有一路处于高电平。</p>
+                        </div>
+                        <div class="output-summary">
+                            <div class="summary-card">
+                                <span>当前编码</span>
+                                <strong id="summaryCode">000</strong>
+                            </div>
+                            <div class="summary-card">
+                                <span>选中通道</span>
+                                <strong id="summaryChannel">Y0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="circuit-board">
+                        <div class="inputs">
+                            <div class="signal-row">
+                                <span class="signal-name">A2</span>
+                                <div class="wire"><i id="wireA2"></i></div>
+                                <span class="signal-value" id="wireValueA2">0</span>
+                            </div>
+                            <div class="signal-row">
+                                <span class="signal-name">A1</span>
+                                <div class="wire"><i id="wireA1"></i></div>
+                                <span class="signal-value" id="wireValueA1">0</span>
+                            </div>
+                            <div class="signal-row">
+                                <span class="signal-name">A0</span>
+                                <div class="wire"><i id="wireA0"></i></div>
+                                <span class="signal-value" id="wireValueA0">0</span>
+                            </div>
+                        </div>
+
+                        <div class="decoder-core">
+                            <div class="decoder-visual">3-8</div>
+                            <div class="decoder-label">译码器</div>
+                        </div>
+
+                        <div class="outputs" id="outputsGrid">
+                            <div class="output-row" data-output="0">
+                                <span class="signal-name">Y0</span>
+                                <div class="wire output-wire"><i id="wireY0"></i></div>
+                                <div class="led" id="ledY0"></div>
+                            </div>
+                            <div class="output-row" data-output="1">
+                                <span class="signal-name">Y1</span>
+                                <div class="wire output-wire"><i id="wireY1"></i></div>
+                                <div class="led" id="ledY1"></div>
+                            </div>
+                            <div class="output-row" data-output="2">
+                                <span class="signal-name">Y2</span>
+                                <div class="wire output-wire"><i id="wireY2"></i></div>
+                                <div class="led" id="ledY2"></div>
+                            </div>
+                            <div class="output-row" data-output="3">
+                                <span class="signal-name">Y3</span>
+                                <div class="wire output-wire"><i id="wireY3"></i></div>
+                                <div class="led" id="ledY3"></div>
+                            </div>
+                            <div class="output-row" data-output="4">
+                                <span class="signal-name">Y4</span>
+                                <div class="wire output-wire"><i id="wireY4"></i></div>
+                                <div class="led" id="ledY4"></div>
+                            </div>
+                            <div class="output-row" data-output="5">
+                                <span class="signal-name">Y5</span>
+                                <div class="wire output-wire"><i id="wireY5"></i></div>
+                                <div class="led" id="ledY5"></div>
+                            </div>
+                            <div class="output-row" data-output="6">
+                                <span class="signal-name">Y6</span>
+                                <div class="wire output-wire"><i id="wireY6"></i></div>
+                                <div class="led" id="ledY6"></div>
+                            </div>
+                            <div class="output-row" data-output="7">
+                                <span class="signal-name">Y7</span>
+                                <div class="wire output-wire"><i id="wireY7"></i></div>
+                                <div class="led" id="ledY7"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="assembly-lab">
+                        <div class="assembly-head">
+                            <div>
+                                <h3>拖拽拼装实验台</h3>
+                            </div>
+                            <div class="assembly-badges">
+                                <span class="assembly-badge" id="assemblyProgress">已拼装 0 / 5</span>
+                                <span class="assembly-badge amber" id="wiringProgress">已连线 0 / 4</span>
+                                <button class="assembly-reset-btn" id="resetAssemblyBtn" type="button">重置实验台</button>
+                            </div>
+                        </div>
+
+                        <div class="assembly-builder" id="assemblyBuilder">
+                            <div class="parts-tray">
+                                <div class="parts-tray-title">器件托盘</div>
+
+                                <div class="part-card" draggable="true" data-part="input-a2">
+                                    <span class="part-kind">输入拨杆模块</span>
+                                    <div class="part-visual switch-module">
+                                        <span class="module-screw top-left"></span>
+                                        <span class="module-screw top-right"></span>
+                                        <span class="module-screw bottom-left"></span>
+                                        <span class="module-screw bottom-right"></span>
+                                        <span class="switch-metal-base"></span>
+                                        <span class="switch-lever"></span>
+                                        <span class="switch-terminal left"></span>
+                                        <span class="switch-terminal right"></span>
+                                        <span class="switch-tag">A2</span>
+                                    </div>
+                                    <strong>A2 开关</strong>
+                                </div>
+
+                                <div class="part-card" draggable="true" data-part="input-a1">
+                                    <span class="part-kind">输入拨杆模块</span>
+                                    <div class="part-visual switch-module">
+                                        <span class="module-screw top-left"></span>
+                                        <span class="module-screw top-right"></span>
+                                        <span class="module-screw bottom-left"></span>
+                                        <span class="module-screw bottom-right"></span>
+                                        <span class="switch-metal-base"></span>
+                                        <span class="switch-lever"></span>
+                                        <span class="switch-terminal left"></span>
+                                        <span class="switch-terminal right"></span>
+                                        <span class="switch-tag">A1</span>
+                                    </div>
+                                    <strong>A1 开关</strong>
+                                </div>
+
+                                <div class="part-card" draggable="true" data-part="input-a0">
+                                    <span class="part-kind">输入拨杆模块</span>
+                                    <div class="part-visual switch-module">
+                                        <span class="module-screw top-left"></span>
+                                        <span class="module-screw top-right"></span>
+                                        <span class="module-screw bottom-left"></span>
+                                        <span class="module-screw bottom-right"></span>
+                                        <span class="switch-metal-base"></span>
+                                        <span class="switch-lever"></span>
+                                        <span class="switch-terminal left"></span>
+                                        <span class="switch-terminal right"></span>
+                                        <span class="switch-tag">A0</span>
+                                    </div>
+                                    <strong>A0 开关</strong>
+                                </div>
+
+                                <div class="part-card" draggable="true" data-part="decoder-chip">
+                                    <span class="part-kind">译码核心模块</span>
+                                    <div class="part-visual decoder-module">
+                                        <span class="board-screw top-left"></span>
+                                        <span class="board-screw top-right"></span>
+                                        <span class="board-screw bottom-left"></span>
+                                        <span class="board-screw bottom-right"></span>
+                                        <div class="decoder-socket">
+                                            <span class="socket-hole left-1"></span>
+                                            <span class="socket-hole left-2"></span>
+                                            <span class="socket-hole left-3"></span>
+                                            <span class="socket-hole left-4"></span>
+                                            <span class="socket-hole right-1"></span>
+                                            <span class="socket-hole right-2"></span>
+                                            <span class="socket-hole right-3"></span>
+                                            <span class="socket-hole right-4"></span>
+                                        </div>
+                                        <div class="decoder-chip-body">
+                                            <span class="chip-notch"></span>
+                                            <span class="chip-mark">74HC138</span>
+                                        </div>
+                                    </div>
+                                    <strong>3-8 译码器</strong>
+                                </div>
+
+                                <div class="part-card" draggable="true" data-part="output-bank">
+                                    <span class="part-kind">输出灯组模块</span>
+                                    <div class="part-visual lampbank-module">
+                                        <span class="panel-screw top-left"></span>
+                                        <span class="panel-screw top-right"></span>
+                                        <span class="panel-screw bottom-left"></span>
+                                        <span class="panel-screw bottom-right"></span>
+                                        <div class="lamp-label-grid" aria-hidden="true">
+                                            <span class="lamp-label">Y0</span>
+                                            <span class="lamp-label">Y1</span>
+                                            <span class="lamp-label">Y2</span>
+                                            <span class="lamp-label">Y3</span>
+                                            <span class="lamp-label">Y4</span>
+                                            <span class="lamp-label">Y5</span>
+                                            <span class="lamp-label">Y6</span>
+                                            <span class="lamp-label">Y7</span>
+                                        </div>
+                                        <div class="lamp-grid">
+                                            <span class="lamp" data-lamp-index="0"></span>
+                                            <span class="lamp" data-lamp-index="1"></span>
+                                            <span class="lamp" data-lamp-index="2"></span>
+                                            <span class="lamp" data-lamp-index="3"></span>
+                                            <span class="lamp" data-lamp-index="4"></span>
+                                            <span class="lamp" data-lamp-index="5"></span>
+                                            <span class="lamp" data-lamp-index="6"></span>
+                                            <span class="lamp" data-lamp-index="7"></span>
+                                        </div>
+                                    </div>
+                                    <strong>Y0-Y7 灯组</strong>
+                                </div>
+                            </div>
+
+                            <div class="assembly-canvas" id="assemblyCanvas">
+                                <svg class="assembly-wires" id="assemblyWires" aria-hidden="true"></svg>
+
+                                <div class="assembly-slot slot-a2" data-slot="input-a2">
+                                    <span class="slot-label">输入位 A2</span>
+                                    <div class="slot-base switch-base" aria-hidden="true">
+                                        <span class="mount-hole top-left"></span>
+                                        <span class="mount-hole top-right"></span>
+                                        <span class="mount-hole bottom-left"></span>
+                                        <span class="mount-hole bottom-right"></span>
+                                        <span class="mount-track"></span>
+                                        <span class="mount-terminals"></span>
+                                    </div>
+                                    <div class="slot-installed switch-module" aria-hidden="true">
+                                        <span class="module-screw top-left"></span>
+                                        <span class="module-screw top-right"></span>
+                                        <span class="module-screw bottom-left"></span>
+                                        <span class="module-screw bottom-right"></span>
+                                        <span class="switch-metal-base"></span>
+                                        <span class="switch-lever"></span>
+                                        <span class="switch-terminal left"></span>
+                                        <span class="switch-terminal right"></span>
+                                        <span class="switch-tag">A2</span>
+                                        <button class="port-node port-output" type="button" data-port="a2-out" aria-label="A2 输出端"></button>
+                                    </div>
+                                    <strong class="slot-meta" data-slot-value="input-a2"></strong>
+                                </div>
+
+                                <div class="assembly-slot slot-a1" data-slot="input-a1">
+                                    <span class="slot-label">输入位 A1</span>
+                                    <div class="slot-base switch-base" aria-hidden="true">
+                                        <span class="mount-hole top-left"></span>
+                                        <span class="mount-hole top-right"></span>
+                                        <span class="mount-hole bottom-left"></span>
+                                        <span class="mount-hole bottom-right"></span>
+                                        <span class="mount-track"></span>
+                                        <span class="mount-terminals"></span>
+                                    </div>
+                                    <div class="slot-installed switch-module" aria-hidden="true">
+                                        <span class="module-screw top-left"></span>
+                                        <span class="module-screw top-right"></span>
+                                        <span class="module-screw bottom-left"></span>
+                                        <span class="module-screw bottom-right"></span>
+                                        <span class="switch-metal-base"></span>
+                                        <span class="switch-lever"></span>
+                                        <span class="switch-terminal left"></span>
+                                        <span class="switch-terminal right"></span>
+                                        <span class="switch-tag">A1</span>
+                                        <button class="port-node port-output" type="button" data-port="a1-out" aria-label="A1 输出端"></button>
+                                    </div>
+                                    <strong class="slot-meta" data-slot-value="input-a1"></strong>
+                                </div>
+
+                                <div class="assembly-slot slot-a0" data-slot="input-a0">
+                                    <span class="slot-label">输入位 A0</span>
+                                    <div class="slot-base switch-base" aria-hidden="true">
+                                        <span class="mount-hole top-left"></span>
+                                        <span class="mount-hole top-right"></span>
+                                        <span class="mount-hole bottom-left"></span>
+                                        <span class="mount-hole bottom-right"></span>
+                                        <span class="mount-track"></span>
+                                        <span class="mount-terminals"></span>
+                                    </div>
+                                    <div class="slot-installed switch-module" aria-hidden="true">
+                                        <span class="module-screw top-left"></span>
+                                        <span class="module-screw top-right"></span>
+                                        <span class="module-screw bottom-left"></span>
+                                        <span class="module-screw bottom-right"></span>
+                                        <span class="switch-metal-base"></span>
+                                        <span class="switch-lever"></span>
+                                        <span class="switch-terminal left"></span>
+                                        <span class="switch-terminal right"></span>
+                                        <span class="switch-tag">A0</span>
+                                        <button class="port-node port-output" type="button" data-port="a0-out" aria-label="A0 输出端"></button>
+                                    </div>
+                                    <strong class="slot-meta" data-slot-value="input-a0"></strong>
+                                </div>
+
+                                <div class="assembly-slot slot-decoder" data-slot="decoder-chip">
+                                    <span class="slot-label">译码核心</span>
+                                    <div class="slot-base decoder-base" aria-hidden="true">
+                                        <span class="mount-hole top-left"></span>
+                                        <span class="mount-hole top-right"></span>
+                                        <span class="mount-hole bottom-left"></span>
+                                        <span class="mount-hole bottom-right"></span>
+                                        <div class="socket-outline">
+                                            <span class="pin-dot left-1"></span>
+                                            <span class="pin-dot left-2"></span>
+                                            <span class="pin-dot left-3"></span>
+                                            <span class="pin-dot left-4"></span>
+                                            <span class="pin-dot left-5"></span>
+                                            <span class="pin-dot left-6"></span>
+                                            <span class="pin-dot right-1"></span>
+                                            <span class="pin-dot right-2"></span>
+                                            <span class="pin-dot right-3"></span>
+                                            <span class="pin-dot right-4"></span>
+                                            <span class="pin-dot right-5"></span>
+                                            <span class="pin-dot right-6"></span>
+                                        </div>
+                                    </div>
+                                    <div class="slot-installed decoder-module" aria-hidden="true">
+                                        <span class="board-screw top-left"></span>
+                                        <span class="board-screw top-right"></span>
+                                        <span class="board-screw bottom-left"></span>
+                                        <span class="board-screw bottom-right"></span>
+                                        <div class="decoder-socket">
+                                            <span class="socket-hole left-1"></span>
+                                            <span class="socket-hole left-2"></span>
+                                            <span class="socket-hole left-3"></span>
+                                            <span class="socket-hole left-4"></span>
+                                            <span class="socket-hole right-1"></span>
+                                            <span class="socket-hole right-2"></span>
+                                            <span class="socket-hole right-3"></span>
+                                            <span class="socket-hole right-4"></span>
+                                        </div>
+                                        <div class="decoder-chip-body">
+                                            <span class="chip-notch"></span>
+                                            <span class="chip-mark">74HC138</span>
+                                        </div>
+                                        <button class="port-node port-input port-input-a2" type="button" data-port="decoder-a2" aria-label="译码器 A2 输入端"></button>
+                                        <button class="port-node port-input port-input-a1" type="button" data-port="decoder-a1" aria-label="译码器 A1 输入端"></button>
+                                        <button class="port-node port-input port-input-a0" type="button" data-port="decoder-a0" aria-label="译码器 A0 输入端"></button>
+                                        <button class="port-node port-bus" type="button" data-port="decoder-y" aria-label="译码器输出总线"></button>
+                                    </div>
+                                    <strong class="slot-meta" data-slot-value="decoder-chip"></strong>
+                                </div>
+
+                                <div class="assembly-slot slot-output" data-slot="output-bank">
+                                    <span class="slot-label">输出灯组</span>
+                                    <div class="slot-base lampbank-base" aria-hidden="true">
+                                        <span class="mount-hole top-left"></span>
+                                        <span class="mount-hole top-right"></span>
+                                        <span class="mount-hole bottom-left"></span>
+                                        <span class="mount-hole bottom-right"></span>
+                                        <div class="lamp-hole-grid">
+                                            <span class="lamp-hole"></span>
+                                            <span class="lamp-hole"></span>
+                                            <span class="lamp-hole"></span>
+                                            <span class="lamp-hole"></span>
+                                            <span class="lamp-hole"></span>
+                                            <span class="lamp-hole"></span>
+                                            <span class="lamp-hole"></span>
+                                            <span class="lamp-hole"></span>
+                                        </div>
+                                    </div>
+                                    <div class="slot-installed lampbank-module" aria-hidden="true">
+                                        <span class="panel-screw top-left"></span>
+                                        <span class="panel-screw top-right"></span>
+                                        <span class="panel-screw bottom-left"></span>
+                                        <span class="panel-screw bottom-right"></span>
+                                        <div class="lamp-label-grid" aria-hidden="true">
+                                            <span class="lamp-label">Y0</span>
+                                            <span class="lamp-label">Y1</span>
+                                            <span class="lamp-label">Y2</span>
+                                            <span class="lamp-label">Y3</span>
+                                            <span class="lamp-label">Y4</span>
+                                            <span class="lamp-label">Y5</span>
+                                            <span class="lamp-label">Y6</span>
+                                            <span class="lamp-label">Y7</span>
+                                        </div>
+                                        <div class="lamp-grid">
+                                            <span class="lamp" data-lamp-index="0"></span>
+                                            <span class="lamp" data-lamp-index="1"></span>
+                                            <span class="lamp" data-lamp-index="2"></span>
+                                            <span class="lamp" data-lamp-index="3"></span>
+                                            <span class="lamp" data-lamp-index="4"></span>
+                                            <span class="lamp" data-lamp-index="5"></span>
+                                            <span class="lamp" data-lamp-index="6"></span>
+                                            <span class="lamp" data-lamp-index="7"></span>
+                                        </div>
+                                        <button class="port-node port-bus port-bank" type="button" data-port="output-in" aria-label="灯组输入端"></button>
+                                    </div>
+                                    <strong class="slot-meta" data-slot-value="output-bank"></strong>
+                                </div>
+
+                                <div class="assembly-monitor">
+                                    <div class="assembly-monitor-card">
+                                        <span>当前编码</span>
+                                        <strong id="assemblyCode">000</strong>
+                                    </div>
+                                    <div class="assembly-monitor-card">
+                                        <span>激活输出</span>
+                                        <strong id="assemblyActive">Y0</strong>
+                                    </div>
+                                    <div class="assembly-monitor-card wide">
+                                        <span>拼装状态</span>
+                                        <strong id="assemblyHint">等待拖拽器件</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="truth-table-wrap">
+                        <h3>三八译码器真值表</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>A2</th>
+                                    <th>A1</th>
+                                    <th>A0</th>
+                                    <th>点亮通道</th>
+                                    <th>输出状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="truthTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="panel mentor-panel">
+                <div class="panel-inner">
+                    <div class="mentor-stage" id="mentorStage">
+                        <div class="mentor-bubble">
+                            <h2>实验助手“小芯”</h2>
+                            <p id="bubbleText">欢迎来到实验三。三八译码器会把三位输入翻译成八路输出中的一路选通，我会跟着你的每一步操作进行讲解。</p>
+                        </div>
+
+                        <div class="mentor-rings" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class="live2d-stage-shell" id="avatar">
+                            <div class="live2d-host" data-live2d-host></div>
+                        </div>
+
+                        <div class="mentor-readouts">
+                            <div class="readout-card">
+                                <span>讲解状态</span>
+                                <strong id="voiceState">待命</strong>
+                            </div>
+                            <div class="readout-card">
+                                <span>当前焦点</span>
+                                <strong id="focusState">实验三</strong>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="emotion-panel" id="emotionPanel" data-emotion="neutral">
+                            <div class="emotion-panel-head">
+                                <div>
+                                    <span>多模态情绪融合</span>
+                                    <strong id="emotionLabel">中性</strong>
+                                </div>
+                                <em id="emotionConfidence">35%</em>
+                            </div>
+                            <div class="emotion-source-grid">
+                                <div class="emotion-source">
+                                    <span>文本</span>
+                                    <strong id="emotionSourceText">未输入</strong>
+                                </div>
+                                <div class="emotion-source">
+                                    <span>语音</span>
+                                    <strong id="emotionSourceVoice">未启用</strong>
+                                </div>
+                                <div class="emotion-source">
+                                    <span>行为</span>
+                                    <strong id="emotionSourceBehavior">正常</strong>
+                                </div>
+                            </div>
+                            <div class="emotion-decision">
+                                <span id="emotionStrategy">教学策略：正常讲解</span>
+                                <strong id="emotionOutput">输出方式：默认表情 / 正常语速 / 按流程讲解</strong>
+                            </div>
+                        </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="scripts/live2d-host.js"></script>
+    <script src="scripts/emotion-utils.js"></script>
+    <script src="scripts/experiment-decoder.js"></script>
+    <script src="scripts/experiment-voice-assistant.js"></script>
+</body>
+</html>
