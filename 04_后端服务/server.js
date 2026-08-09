@@ -10,9 +10,8 @@ import WebSocket from "ws";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// 安全：密钥不再硬编码，改为从环境变量 DASHSCOPE_API_KEY 注入（通过 .env 或运行环境提供）。
-// 提交到公开仓库前请确保此处为空，且真实密钥仅存在于本地 .env（已被 .gitignore 忽略）。
-const embeddedDashScopeApiKey = process.env.DASHSCOPE_API_KEY || "";
+// 安全：DashScope API Key 不在此硬编码。请通过环境变量 DASHSCOPE_API_KEY 提供
+//（在 .env 中填写，形如 DASHSCOPE_API_KEY=添加你的API_KEY）；.env 已被 .gitignore 忽略，不会提交到仓库。
 const embeddedDashScopeBaseUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 
 const app = express();
@@ -54,7 +53,7 @@ function getConfigValue(name, fallbackValue = "") {
     return value || fallbackValue;
 }
 
-const resolvedApiKey = embeddedDashScopeApiKey || process.env.DASHSCOPE_API_KEY || "";
+const resolvedApiKey = process.env.DASHSCOPE_API_KEY || "";
 const resolvedBaseUrl = getConfigValue("DASHSCOPE_BASE_URL", embeddedDashScopeBaseUrl);
 
 const model = new ChatOpenAI({

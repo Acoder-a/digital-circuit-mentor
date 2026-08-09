@@ -109,7 +109,7 @@ cp 06_配置与说明/.env.example 06_配置与说明/.env
 ```
 
 ```dotenv
-DASHSCOPE_API_KEY=你的_api_key_here
+DASHSCOPE_API_KEY=添加你的API_KEY
 DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 QWEN_MODEL_ID=qwen-max
 PORT=3010
@@ -214,9 +214,7 @@ POST /api/chat
 
 ## ⚠️ 开源 / 上线前必读（安全）
 
-1. **不要提交任何密钥。** 本仓库 `.env` 已被 `.gitignore` 忽略；但 **`04_后端服务/server.js` 中硬编码了一个 DashScope API Key**（`embeddedDashScopeApiKey = "sk-..."`）。上传 GitHub 前请：
-   - 立即在阿里云控制台 **吊销并轮换** 该 Key；
-   - 将 `server.js` 中的硬编码值改为从环境变量读取（例如 `process.env.DASHSCOPE_API_KEY`），或置空后仅依赖 `.env` / 运行环境注入。
+1. **不要提交任何密钥。** 本仓库 `.env` / `.env.example` 中只包含占位符 **`添加你的API_KEY`**，**不包含任何真实密钥**；`04_后端服务/server.js` 也从环境变量 `DASHSCOPE_API_KEY` 读取密钥，不硬编码。请自行在本地 `.env` 中填入你的真实 Key（该文件已被 `.gitignore` 忽略，不会提交到仓库）。
 2. **忽略体积目录。** 已提供根 `.gitignore`，忽略 `node_modules/`、`*.tmp`、`__pycache__/`、`.idea/`、`.env` 等。务必确认 `08_依赖文件`、`04/06` 下的 `node_modules` **未被提交**。
 3. **模型与资源外链。** Live2D 模型默认从 jsDelivr CDN 加载；如需离线部署，请改为本地 `model.json` 路径。
 
