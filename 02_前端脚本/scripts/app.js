@@ -1943,12 +1943,13 @@ function getAssistantExperimentState() {
 
 async function fetchAssistantStreamResponse(query, signal, maxAttempts = 2) {
     let attempt = 0;
+    const accessToken = window.DigitalMentorAuth?.token?.();
 
     while (attempt < maxAttempts) {
         try {
             const response = await fetch(
                 `${assistantApiBase}/api/chat/stream?${query.toString()}`,
-                { signal }
+                { signal, headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} }
             );
 
             if (!response.ok || !response.body) {

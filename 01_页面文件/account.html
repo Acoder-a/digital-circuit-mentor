@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的学习空间 · 小芯数字电路导师</title>
+    <link rel="stylesheet" href="styles/account.css">
+</head>
+<body class="account-page">
+    <div class="account-ambient account-ambient-one" aria-hidden="true"></div>
+    <div class="account-ambient account-ambient-two" aria-hidden="true"></div>
+    <div class="account-shell">
+        <header class="account-nav">
+            <a class="account-brand" href="index.html"><img src="logo.png" alt=""><span>数字电路交互仿真平台</span></a>
+            <div class="account-nav-actions"><a href="index.html" class="account-nav-return">返回实验平台 <span aria-hidden="true">↗</span></a><button id="logoutButton" class="account-logout" type="button">退出登录</button></div>
+        </header>
+
+        <main>
+            <p id="accountStatus" class="account-status" role="status">正在加载你的学习空间…</p>
+            <div id="profileContent" hidden>
+                <section class="account-hero" aria-labelledby="profileTitle">
+                    <div class="account-hero-grid" aria-hidden="true"></div>
+                    <div class="account-hero-copy">
+                        <span class="account-kicker"><i></i> 小芯 · 个人学习空间</span>
+                        <div class="account-identity"><div id="accountAvatar" class="account-avatar" aria-hidden="true">芯</div><div><p class="account-hello">很高兴再次见到你</p><h1 id="profileTitle">同学，继续探索数字电路吧</h1><p id="studentContact" class="account-contact"></p></div></div>
+                        <p class="account-hero-description">你的实验进度、学习偏好和重要发现，都在这里持续积累。</p>
+                        <a class="account-continue" href="index.html">继续实验 <span aria-hidden="true">→</span></a>
+                    </div>
+                    <div class="account-hero-art" aria-hidden="true"><div class="account-orbit orbit-outer"></div><div class="account-orbit orbit-middle"></div><div class="account-orbit orbit-inner"></div><span class="orbit-node node-one"></span><span class="orbit-node node-two"></span><span class="orbit-core">01</span></div>
+                </section>
+
+                <section class="account-overview" aria-label="学习概览">
+                    <div class="account-stat"><div class="stat-icon">◇</div><div><span>已参与实验</span><strong id="experimentCount">0</strong><small>个实验方向</small></div></div>
+                    <div class="account-stat"><div class="stat-icon">↗</div><div><span>累计互动</span><strong id="questionCount">0</strong><small>次学习问答</small></div></div>
+                    <div class="account-stat"><div class="stat-icon">✦</div><div><span>长期记忆</span><strong id="memoryCount">0</strong><small>条学习记录</small></div></div>
+                </section>
+
+                <div class="account-main-grid">
+                    <section class="account-panel progress-panel" aria-labelledby="progressHeading">
+                        <div class="panel-heading"><div><span class="panel-eyebrow">LEARNING JOURNEY</span><h2 id="progressHeading">学习进度</h2></div><span class="panel-heading-mark" aria-hidden="true">01</span></div>
+                        <p class="panel-description">每一次提问和实验，都会让知识掌握更进一步。</p>
+                        <ul id="progressList" class="progress-list"></ul>
+                    </section>
+                    <section class="account-panel settings-panel" aria-labelledby="settingsHeading">
+                        <div class="panel-heading"><div><span class="panel-eyebrow">PERSONAL SETTINGS</span><h2 id="settingsHeading">账号设置</h2></div><span class="panel-heading-mark" aria-hidden="true">02</span></div>
+                        <label class="settings-label" for="studentName">姓名或昵称</label>
+                        <input id="studentName" class="settings-name" maxlength="80" autocomplete="nickname">
+                        <div class="settings-divider"></div>
+                        <label class="memory-switch-row" for="memoryEnabled"><span><strong>个性化长期记忆</strong><small>让小芯记住与你相关的学习信息</small></span><span class="account-switch"><input id="memoryEnabled" type="checkbox"><span class="account-switch-track"></span></span></label>
+                        <p class="settings-note">关闭后停止召回和新增记忆，已有内容仍可在下方管理。</p>
+                        <button id="saveProfile" class="save-profile" type="button">保存设置 <span aria-hidden="true">→</span></button>
+                    </section>
+                </div>
+
+                <section class="account-panel memory-panel" aria-labelledby="memoryHeading">
+                    <div class="panel-heading"><div><span class="panel-eyebrow">YOUR LEARNING MEMORY</span><h2 id="memoryHeading">我的长期记忆</h2></div><span class="panel-heading-mark" aria-hidden="true">03</span></div>
+                    <p class="panel-description">这些学习信息只属于你的账号。你可以随时修改、删除，或在上方关闭记忆功能。</p>
+                    <ul id="memoryList" class="memory-list"></ul>
+                </section>
+            </div>
+        </main>
+        <footer class="account-footer"><span>小芯 · 数字电路实验智能助手</span><span>让每一步实验都有迹可循</span></footer>
+    </div>
+    <div id="accountToast" class="account-toast" role="status" aria-live="polite"></div>
+    <script src="scripts/auth-widget.js"></script>
+    <script src="scripts/account.js"></script>
+</body>
+</html>

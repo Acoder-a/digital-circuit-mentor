@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: digital_circuit_mentor
+      POSTGRES_USER: mentor
+      POSTGRES_PASSWORD: mentor_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - mentor_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mentor -d digital_circuit_mentor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  mentor_pgdata:

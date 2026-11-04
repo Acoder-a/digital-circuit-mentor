@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录与注册 · 小芯数字电路导师</title>
+    <link rel="stylesheet" href="styles/live2d-host.css">
+    <link rel="stylesheet" href="styles/auth-page.css">
+</head>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-showcase" aria-label="小芯数字人介绍">
+            <div class="auth-showcase-grid" aria-hidden="true"></div>
+            <a class="auth-brand" href="index.html"><img src="logo.png" alt=""><span>数字电路交互仿真平台</span></a>
+            <div class="auth-intro">
+                <span class="auth-eyebrow"><span class="auth-eyebrow-dot"></span> AI 实验伙伴 · 小芯</span>
+                <h1>每一步探索，<br><em>都有小芯陪你。</em></h1>
+                <p>保存实验进度与对话，接着上次的思路继续学习。</p>
+            </div>
+            <div class="auth-avatar-scene">
+                <div class="auth-orbit auth-orbit-one"></div><div class="auth-orbit auth-orbit-two"></div>
+                <div class="auth-avatar-glow"></div>
+                <div class="live2d-stage-shell"><div class="live2d-host" data-live2d-host></div></div>
+                <div class="auth-avatar-caption"><span class="auth-online-dot"></span> 小芯已就绪，等你一起开始实验</div>
+            </div>
+            <div class="auth-benefits"><span>◇ 实验进度同步</span><span>◇ 个性化学习记忆</span><span>◇ 随时继续对话</span></div>
+        </section>
+
+        <section class="auth-content" aria-label="学生账号">
+            <div class="auth-content-top"><a href="index.html" class="auth-home-link">← 返回实验平台</a><span>STUDENT ACCESS</span></div>
+            <div class="auth-form-wrap">
+                <div class="auth-heading"><span class="auth-form-eyebrow">欢迎来到数字电路实验室</span><h2 id="authTitle">欢迎回来</h2><p id="authDescription">登录后继续你的实验和学习记录。</p></div>
+                <div class="auth-tabs" role="tablist" aria-label="账号操作">
+                    <button type="button" data-mode="login" role="tab" aria-selected="true">登录</button>
+                    <button type="button" data-mode="register" role="tab" aria-selected="false">注册账号</button>
+                </div>
+
+                <form id="loginForm" class="auth-form" data-panel="login">
+                    <label for="loginAccount">手机号 <span class="auth-label-note">旧账号也可用邮箱登录</span></label>
+                    <input id="loginAccount" name="account" type="text" autocomplete="username" placeholder="请输入手机号或邮箱" required>
+                    <div class="auth-label-row"><label for="loginPassword">密码</label><button class="auth-text-button" type="button" data-mode="reset">忘记密码？</button></div>
+                    <div class="auth-password-field"><input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" required><button type="button" class="auth-reveal" aria-label="显示密码">显示</button></div>
+                    <button type="submit" class="auth-submit">登录并继续实验 <span aria-hidden="true">→</span></button>
+                </form>
+
+                <form id="registerForm" class="auth-form" data-panel="register" hidden>
+                    <label for="registerName">你的称呼</label>
+                    <input id="registerName" name="displayName" type="text" autocomplete="nickname" maxlength="80" placeholder="例如：小明" required>
+                    <label for="registerPhone">手机号</label>
+                    <input id="registerPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入中国大陆手机号" required>
+                    <label for="registerCode">手机验证码</label>
+                    <div class="auth-code-field"><input id="registerCode" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="6 位验证码" required><button type="button" data-send-code="register">获取验证码</button></div>
+                    <label for="registerPassword">设置密码</label>
+                    <div class="auth-password-field"><input id="registerPassword" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="至少 8 位字符" required><button type="button" class="auth-reveal" aria-label="显示密码">显示</button></div>
+                    <label for="registerConfirm">确认密码</label>
+                    <input id="registerConfirm" name="confirm" type="password" autocomplete="new-password" minlength="8" placeholder="再次输入密码" required>
+                    <button type="submit" class="auth-submit">创建账号 <span aria-hidden="true">→</span></button>
+                </form>
+
+                <form id="resetForm" class="auth-form" data-panel="reset" hidden>
+                    <label for="resetPhone">注册手机号</label>
+                    <input id="resetPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入注册时使用的手机号" required>
+                    <label for="resetCode">手机验证码</label>
+                    <div class="auth-code-field"><input id="resetCode" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="6 位验证码" required><button type="button" data-send-code="reset">获取验证码</button></div>
+                    <label for="resetPassword">新密码</label>
+                    <div class="auth-password-field"><input id="resetPassword" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="至少 8 位字符" required><button type="button" class="auth-reveal" aria-label="显示密码">显示</button></div>
+                    <label for="resetConfirm">确认新密码</label>
+                    <input id="resetConfirm" name="confirm" type="password" autocomplete="new-password" minlength="8" placeholder="再次输入新密码" required>
+                    <button type="submit" class="auth-submit">重置密码 <span aria-hidden="true">→</span></button>
+                    <button type="button" class="auth-back-login" data-mode="login">← 返回登录</button>
+                </form>
+                <p id="authMessage" class="auth-message" role="status" aria-live="polite"></p>
+                <p class="auth-footnote">注册即表示你同意保存个人学习记录；长期记忆可在个人中心关闭或删除。</p>
+            </div>
+            <div class="auth-content-bottom">小芯 · 数字电路实验智能助手 <span>© 2026</span></div>
+        </section>
+    </main>
+    <script src="scripts/live2d-host.js"></script>
+    <script src="scripts/auth-widget.js"></script>
+    <script src="scripts/auth-page.js"></script>
+</body>
+</html>

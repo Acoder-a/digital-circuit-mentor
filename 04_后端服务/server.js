@@ -7,6 +7,10 @@ import { spawn } from "child_process";
 import { AIMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatOpenAI } from "@langchain/openai";
 import WebSocket from "ws";
+import { authRouter, optionalAuth, requireAuth } from "./src/auth.js";
+import { databaseStatus, initDatabase, isDatabaseConfigured } from "./src/database.js";
+import { formatKnowledgeContext, publicSources, retrieveKnowledge } from "./src/rag.js";
+import { formatLongTermMemories, getMemoryContext, memoryMessages, profileRouter, saveConversationTurn } from "./src/memory.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,7 +43,7 @@ app.use((req, res, next) => {
     const origin = req.headers.origin || "*";
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     if (req.method === "OPTIONS") {
         res.status(204).end();
@@ -71,7 +75,9 @@ const systemPrompt = [
     "你是数字电路仿真实验平台里的实验助手小芯。",
     "请始终使用中文回答，回答简洁、清楚、带一点教学引导。",
     "如果给了实验上下文，请优先结合上下文。",
-    "如果用户是在追问，请结合之前的对话继续解释，不要把问题当成全新上下文。"
+    "如果用户是在追问，请结合之前的对话继续解释，不要把问题当成全新上下文。",
+    "课程知识与真实芯片资料优先依据下方检索片段；网页仿真状态只表示本平台的简化规则，不能冒充真实硬件手册。",
+    "使用知识库内容时，在相关句末标注[文件名，第N页]；资料不足时明确说‘当前知识库依据不足’，再给出普通原理解释，禁止虚构来源或页码。"
 ].join("");
 
 function normalizeSessionId(rawValue) {
@@ -241,27 +247,60 @@ async function proxyAudioEmotionPrediction(payload) {
     return data;
 }
 
-function buildConversationMessages({ question, experimentName, experimentState, sessionId }) {
+async function buildConversationMessages({ question, experimentName, experimentState, sessionId, student }) {
     const experimentStateText = stringifyExperimentState(experimentState);
     const userPrompt = buildUserPrompt(question, experimentName, experimentStateText);
-    const historyEntries = getHistoryEntries(sessionId);
-    const messages = [new SystemMessage(systemPrompt)];
+    const [ragResult, memoryContext] = await Promise.all([
+        retrieveKnowledge(question, experimentName).catch((error) => {
+            console.error("[rag] retrieval failed:", error.message);
+            return { chunks: [], sufficient: false, reason: error.message };
+        }),
+        getMemoryContext({ student, clientSessionId: sessionId, question }).catch((error) => {
+            console.error("[memory] recall failed:", error.message);
+            return { recent: [], summary: "", longTerm: [] };
+        })
+    ]);
+    const augmentedSystemPrompt = [
+        systemPrompt,
+        `\n\n【课程知识库检索结果】\n${formatKnowledgeContext(ragResult)}`,
+        `\n\n【历史对话摘要】\n${memoryContext.summary || "暂无摘要。"}`,
+        `\n\n【与当前问题相关的学生长期记忆】\n${formatLongTermMemories(memoryContext)}`,
+        `\n\n检索状态：${ragResult.sufficient ? "资料相关性充足" : "资料相关性不足，回答时必须明确说明"}`
+    ].join("");
+    const messages = [new SystemMessage(augmentedSystemPrompt)];
 
-    historyEntries.forEach((entry) => {
-        if (entry.role === "assistant") {
-            messages.push(new AIMessage(entry.content));
-            return;
-        }
-
-        messages.push(new HumanMessage(entry.content));
-    });
+    if (student) {
+        messages.push(...memoryMessages(memoryContext));
+    } else {
+        getHistoryEntries(sessionId).forEach((entry) => {
+            messages.push(entry.role === "assistant" ? new AIMessage(entry.content) : new HumanMessage(entry.content));
+        });
+    }
 
     messages.push(new HumanMessage(userPrompt));
 
     return {
         messages,
-        userPrompt
+        userPrompt,
+        ragResult,
+        sources: publicSources(ragResult)
     };
+}
+
+async function persistTurn({ student, sessionId, experimentName, userPrompt, answer, sources }) {
+    if (!answer) return;
+    if (!student) {
+        saveHistoryTurn(sessionId, userPrompt, answer);
+        return;
+    }
+    await saveConversationTurn({
+        student,
+        clientSessionId: sessionId,
+        experimentName,
+        userContent: userPrompt,
+        assistantContent: answer,
+        sources
+    });
 }
 
 function readMessageText(content) {
@@ -705,12 +744,17 @@ process.on("uncaughtException", (error) => {
 
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static(__dirname));
+app.use(optionalAuth);
+app.use("/api/auth", authRouter(express));
+app.use("/api/student", requireAuth, profileRouter(express));
 
-app.get("/api/health", (_req, res) => {
+app.get("/api/health", async (_req, res) => {
     res.json({
         ok: true,
         model: resolvedModel,
-        baseUrl: resolvedBaseUrl
+        baseUrl: resolvedBaseUrl,
+        database: await databaseStatus(),
+        ragEnabled: isDatabaseConfigured()
     });
 });
 
@@ -761,21 +805,20 @@ app.post("/api/chat", async (req, res) => {
             return;
         }
 
-        const { messages, userPrompt } = buildConversationMessages({
+        const { messages, userPrompt, sources } = await buildConversationMessages({
             question,
             experimentName,
             experimentState,
-            sessionId
+            sessionId,
+            student: req.student
         });
 
         const response = await model.invoke(messages);
         const answer = readMessageText(response.content).trim();
 
-        if (answer) {
-            saveHistoryTurn(sessionId, userPrompt, answer);
-        }
+        await persistTurn({ student: req.student, sessionId, experimentName, userPrompt, answer, sources });
 
-        res.json({ answer });
+        res.json({ answer, sources });
     } catch (error) {
         console.error("chat error:", error);
         res.status(500).json({
@@ -860,11 +903,12 @@ app.get("/api/chat/stream", async (req, res) => {
     res.flushHeaders?.();
 
     try {
-        const { messages, userPrompt } = buildConversationMessages({
+        const { messages, userPrompt, sources } = await buildConversationMessages({
             question,
             experimentName,
             experimentState,
-            sessionId
+            sessionId,
+            student: req.student
         });
 
         const stream = await model.stream(messages);
@@ -880,11 +924,9 @@ app.get("/api/chat/stream", async (req, res) => {
             res.write(`data: ${JSON.stringify({ token })}\n\n`);
         }
 
-        if (finalText.trim()) {
-            saveHistoryTurn(sessionId, userPrompt, finalText.trim());
-        }
+        await persistTurn({ student: req.student, sessionId, experimentName, userPrompt, answer: finalText.trim(), sources });
 
-        res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+        res.write(`data: ${JSON.stringify({ done: true, sources })}\n\n`);
         res.end();
     } catch (error) {
         console.error("stream error:", error);
@@ -897,9 +939,27 @@ app.get("/api/chat/stream", async (req, res) => {
     }
 });
 
+app.use("/api", (error, _req, res, _next) => {
+    console.error("api error:", error);
+    const status = error?.code === "23505" ? 409 : 500;
+    res.status(status).json({
+        error: status === 409 ? "数据已存在，请检查是否重复" : "服务处理失败",
+        detail: process.env.NODE_ENV === "production" ? undefined : error?.message
+    });
+});
+
 app.get("/", (_req, res) => {
     res.redirect(frontendUrl);
 });
+
+if (isDatabaseConfigured()) {
+    try {
+        await initDatabase();
+        console.log("[database] PostgreSQL/pgvector ready");
+    } catch (error) {
+        console.error("[database] initialization failed; anonymous legacy mode remains available:", error.message);
+    }
+}
 
 app.listen(port, () => {
     void startAudioEmotionService();

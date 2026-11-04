@@ -76,7 +76,7 @@
 
 ### 环境要求
 
-- Node.js ≥ 18
+- Node.js ≥ 20（LangChain 1.x）
 - Python ≥ 3.9（音频情绪识别为可选；未安装 `torch` 时会自动降级为 RMS/ZCR 兜底算法）
 - 一个可用的 **阿里云百炼 / DashScope API Key**（通义千问）
 
@@ -162,6 +162,11 @@ npm --prefix ./06_配置与说明 run dev
 | `POST` | `/api/tts` | 文本转语音，返回 `audio/wav` 或 `audio/mpeg` |
 | `GET` | `/api/audio-emotion/health` | 音频情绪服务健康 |
 | `POST` | `/api/audio-emotion` | 音频情绪识别，body：`{ audioBase64 }` |
+| `POST` | `/api/auth/register` | 学生注册（bcrypt 哈希密码） |
+| `POST` | `/api/auth/login` | 登录并获取不透明访问令牌 |
+| `POST` | `/api/auth/logout` | 退出并撤销当前令牌 |
+| `GET/PATCH` | `/api/student/profile` | 查看或更新学习画像与记忆开关 |
+| `PATCH/DELETE` | `/api/student/memories/:id` | 修改或删除当前学生的长期记忆 |
 
 **问答示例（含实验上下文）：**
 
@@ -175,6 +180,12 @@ POST /api/chat
 ```
 
 **会话与流式：** 通过 `sessionId` 维护最近 6 轮历史（TTL 6 小时），`/api/chat/stream` 以 `data: {token}` 增量推送。
+
+配置 `DATABASE_URL` 后，会话自动升级为 PostgreSQL 持久化的三级记忆（最近对话、历史摘要、按问题召回的长期记忆），并按学生账号隔离；未登录时继续兼容原匿名内存会话。问答接口会先执行 pgvector 语义检索与关键词混合检索，将课程资料来源和页码交给 Qwen，并在 SSE 完成事件中返回 `sources`。
+
+### RAG 与账号快速部署
+
+根目录提供 `docker-compose.yml` 启动 PostgreSQL + pgvector。完整环境变量、数据库初始化、一键知识导入、增量更新和测试命令见 [`06_配置与说明/RAG-ACCOUNT-DEPLOY.md`](06_配置与说明/RAG-ACCOUNT-DEPLOY.md)。新增 PDF 放入 `knowledge` 后重新运行 `npm --prefix ./04_后端服务 run knowledge:import` 即可，无需修改问答逻辑。
 
 **语音合成：** 非 `qwen-tts-realtime` 模型走 DashScope inference WebSocket（MP3）；实时模型走 realtime WebSocket（PCM→WAV）。
 

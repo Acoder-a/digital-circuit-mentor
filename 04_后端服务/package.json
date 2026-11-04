@@ -1,10 +1,26 @@
 {
+  "name": "digital-circuit-mentor-backend",
+  "version": "2.0.0",
+  "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "db:init": "node scripts/init-db.js",
+    "knowledge:import": "node scripts/import-knowledge.js ../knowledge",
+    "knowledge:inspect": "node scripts/import-knowledge.js ../knowledge --dry-run",
+    "test": "node --test tests/*.test.js"
+  },
   "dependencies": {
+    "@alicloud/dysmsapi20170525": "^4.6.0",
     "@langchain/core": "^1.1.47",
     "@langchain/openai": "^1.4.6",
+    "bcryptjs": "^3.0.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "pdfjs-dist": "^5.4.394",
+    "pg": "^8.16.3",
     "ws": "^8.20.1"
   }
 }
